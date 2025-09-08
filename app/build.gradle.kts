@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "ru.netology.cryptotrackercoingecko"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "ru.netology.cryptotrackercoingecko"
