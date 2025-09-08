@@ -1,5 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">CryptoTrackerCoinGecko</string>
     <string name="_24h_low">24h Low</string>
     <string name="_24h_high">24h High</string>
     <string name="last_market">Last Market</string>

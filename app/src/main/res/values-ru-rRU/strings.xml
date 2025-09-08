@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">CryptoTrackerCoinGecko</string>
+    <string name="_24h_low">Минимальная цена</string>
+    <string name="_24h_high">Максимальная цена</string>
+    <string name="last_market">Последняя биржа</string>
+    <string name="coin_logo">Логотип криптовалюты</string>
+</resources>
