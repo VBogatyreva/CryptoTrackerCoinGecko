@@ -1,17 +1,28 @@
 package ru.netology.cryptotrackercoingecko.presentation
 
-import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import ru.netology.cryptotrackercoingecko.R
 import ru.netology.cryptotrackercoingecko.domain.CoinInfo
 
-class CoinAdapter(private val coins: List<CoinInfo>) : RecyclerView.Adapter<CoinAdapter.CoinViewHolder>() {
+class CoinAdapter(
+    private var coins: List<CoinInfo>,
+    private val onItemClick: (CoinInfo) -> Unit
+
+) : RecyclerView.Adapter<CoinAdapter.CoinViewHolder>() {
+
+    fun updateList(newList: List<CoinInfo>) {
+        val diffCallback = CoinDiffCallback(coins, newList)
+        val diffResult = DiffUtil.calculateDiff(diffCallback)
+        coins = newList
+        diffResult.dispatchUpdatesTo(this)
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CoinViewHolder {
         val view = LayoutInflater.from(parent.context)
@@ -22,21 +33,7 @@ class CoinAdapter(private val coins: List<CoinInfo>) : RecyclerView.Adapter<Coin
     override fun onBindViewHolder(holder: CoinViewHolder, position: Int) {
         val coin = coins[position]
         holder.bind(coin)
-
-        holder.itemView.setOnClickListener {
-            val context = holder.itemView.context
-            val intent = Intent(context, CoinDetailActivity::class.java).apply {
-                putExtra("FROM_SYMBOL", coin.fromSymbol)
-                putExtra("TO_SYMBOL", coin.toSymbol)
-                putExtra("PRICE", coin.price)
-                putExtra("LAST_UPDATE", coin.lastUpdate)
-                putExtra("HIGH_DAY", coin.highDay)
-                putExtra("LOW_DAY", coin.lowDay)
-                putExtra("LAST_MARKET", coin.lastMarket)
-                putExtra("IMAGE_URL", coin.imageUrl)
-            }
-            context.startActivity(intent)
-        }
+        holder.itemView.setOnClickListener { onItemClick(coin) }
     }
 
     override fun getItemCount(): Int = coins.size
@@ -57,18 +54,26 @@ class CoinAdapter(private val coins: List<CoinInfo>) : RecyclerView.Adapter<Coin
                 coin.fromSymbol
             }
 
-            price.text = coin.price ?: "N/A"
+            price.text = coin.price?.let {
+                "$${"%.2f".format(it.toDouble())}"
+            } ?: "N/A"
 
             lastMarket.text = coin.lastMarket ?: "Unknown market"
 
-            highDay.text = coin.highDay ?: "N/A"
-            lowDay.text = coin.lowDay ?: "N/A"
+            highDay.text = coin.highDay ?.let {
+                "$${"%.2f".format(it.toDouble())}"
+            } ?: "N/A"
+
+            lowDay.text = coin.lowDay ?.let {
+                "$${"%.2f".format(it.toDouble())}"
+            } ?: "N/A"
 
             when {
                 coin.imageUrl.isNullOrEmpty() -> {
                     logo.setImageResource(R.drawable.ic_coin_error)
-                    logo.contentDescription = "Логотип недоступен"
+                    logo.contentDescription = "Logo is unavailable"
                 }
+
                 else -> {
 
                     Glide.with(itemView.context)
@@ -78,22 +83,27 @@ class CoinAdapter(private val coins: List<CoinInfo>) : RecyclerView.Adapter<Coin
                         .fallback(R.drawable.ic_coin_error) // Если null URL (дополнительная защита)
                         .into(logo)
 
-                    logo.contentDescription = "Логотип ${coin.fromSymbol}"
+                    logo.contentDescription = "Logo ${coin.fromSymbol}"
                 }
             }
         }
     }
+
+    private class CoinDiffCallback(
+        private val oldList: List<CoinInfo>,
+        private val newList: List<CoinInfo>
+    ) : DiffUtil.Callback() {
+
+        override fun getOldListSize(): Int = oldList.size
+
+        override fun getNewListSize(): Int = newList.size
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition].id == newList[newItemPosition].id
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldList[oldItemPosition] == newList[newItemPosition]
+        }
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

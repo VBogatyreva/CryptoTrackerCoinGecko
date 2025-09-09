@@ -16,6 +16,10 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField("String", "COINGECKO_API_KEY", "\"CG-YeCeSLi3gcFWhTXFXyB8rgp4\"")
+        buildConfigField("String", "BASE_URL", "\"https://api.coingecko.com/api/v3/\"")
+
     }
 
     buildTypes {
@@ -25,11 +29,13 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            buildConfigField("String", "COINGECKO_API_KEY", "\"CG-YeCeSLi3gcFWhTXFXyB8rgp4\"")
         }
     }
 
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 
     compileOptions {
@@ -65,6 +71,8 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+
+    implementation("com.jakewharton.threetenabp:threetenabp:1.4.6")
 
     // AndroidX Lifecycle
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")

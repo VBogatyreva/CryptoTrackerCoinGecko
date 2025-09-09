@@ -1,6 +1,8 @@
 package ru.netology.cryptotrackercoingecko.domain
 
 data class CoinInfo(
+
+    val id: String,
     val fromSymbol: String,   // Базовая валюта (какую монету покупаем).
     val toSymbol: String?,    // Котируемая валюта (за какую валюту покупаем).
     val price: String?,       // Текущая цена в указанной валюте

@@ -2,11 +2,11 @@ package ru.netology.cryptotrackercoingecko.domain
 
 interface CoinRepository {
 
-    fun getCoinList(): List<CoinInfo>
+    suspend fun getCoinList(): List<CoinInfo>
 
-    fun getCoinDetail(id: String): CoinInfo
+    suspend fun getCoinDetail(id: String): CoinInfo
 
-    fun refreshCoinList()
+    suspend fun refreshCoinList()
 
-    fun searchCoins(name: String): List<CoinInfo>
+    suspend fun searchCoins(name: String): List<CoinInfo>
 }
