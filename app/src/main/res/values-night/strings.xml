@@ -4,4 +4,26 @@
     <string name="_24h_high">24h High</string>
     <string name="last_market">Last Market</string>
     <string name="coin_logo">Coin logo</string>
+    <string name="search_cryptocurrencies">Search_cryptocurrencies...</string>
+
+    <string name="theme">Theme:</string>
+    <string name="light_theme">Light</string>
+    <string name="dark_theme">Dark</string>
+    <string name="language">Language:</string>
+    <string name="english">English</string>
+    <string name="russian">Russian</string>
+    <string name="save">SAVE</string>
+
+    <string name="filter_title">Filter coins</string>
+    <string name="filter_all">All coins</string>
+    <string name="filter_top_3">Top 3</string>
+    <string name="filter_top_5">Top 5</string>
+    <string name="filter_top_10">Top 10</string>
+    <string name="filter_top_50">Top 50</string>
+    <string name="filter_top_100">Top 100</string>
+    <string name="filter_gainers">Top gainers</string>
+    <string name="filter_losers">Top losers</string>
+    <string name="apply">Apply</string>
+    <string name="cancel">Cancel</string>
+    <string name="retry">Retry</string>
 </resources>

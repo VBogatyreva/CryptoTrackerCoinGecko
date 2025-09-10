@@ -5,4 +5,26 @@
     <string name="_24h_high">Максимальная цена</string>
     <string name="last_market">Последняя биржа</string>
     <string name="coin_logo">Логотип криптовалюты</string>
+    <string name="search_cryptocurrencies">Поиск криптовалюты...</string>
+
+    <string name="theme">Тема:</string>
+    <string name="light_theme">Светлая</string>
+    <string name="dark_theme">Темная</string>
+    <string name="language">Язык:</string>
+    <string name="english">Английский</string>
+    <string name="russian">Русский</string>
+    <string name="save">СОХРАНИТЬ</string>
+
+    <string name="filter_title">Фильтр монет</string>
+    <string name="filter_all">Все монеты</string>
+    <string name="filter_top_3">Топ 3</string>
+    <string name="filter_top_5">Топ 5</string>
+    <string name="filter_top_10">Топ 10</string>
+    <string name="filter_top_50">Топ 50</string>
+    <string name="filter_top_100">Топ 100</string>
+    <string name="filter_gainers">Топ роста</string>
+    <string name="filter_losers">Топ падения</string>
+    <string name="apply">Применить</string>
+    <string name="cancel">Отмена</string>
+    <string name="retry">Повторить</string>
 </resources>

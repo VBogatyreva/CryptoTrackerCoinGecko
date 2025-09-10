@@ -27,18 +27,20 @@ class CoinAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CoinViewHolder {
         val view = LayoutInflater.from(parent.context)
             .inflate(R.layout.item_coin_info, parent, false)
-        return CoinViewHolder(view)
+        return CoinViewHolder(view, onItemClick)
     }
 
     override fun onBindViewHolder(holder: CoinViewHolder, position: Int) {
         val coin = coins[position]
         holder.bind(coin)
-        holder.itemView.setOnClickListener { onItemClick(coin) }
     }
 
     override fun getItemCount(): Int = coins.size
 
-    inner class CoinViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class CoinViewHolder(
+        itemView: View,
+        private val onItemClick: (CoinInfo) -> Unit
+    ) : RecyclerView.ViewHolder(itemView) {
         private val logo: ImageView = itemView.findViewById(R.id.ivLogo)
         private val symbol: TextView = itemView.findViewById(R.id.tvSymbol)
         private val lastMarket: TextView = itemView.findViewById(R.id.tvLastMarket)
@@ -86,6 +88,7 @@ class CoinAdapter(
                     logo.contentDescription = "Logo ${coin.fromSymbol}"
                 }
             }
+            itemView.setOnClickListener { onItemClick(coin) }
         }
     }
 
