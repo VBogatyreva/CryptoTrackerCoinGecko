@@ -1,6 +1,8 @@
 package ru.netology.cryptotrackercoingecko.domain
 
+import kotlinx.coroutines.flow.Flow
+
 class GetCoinListUseCase (private val repository: CoinRepository) {
 
-    suspend operator fun invoke(): List<CoinInfo> = repository.getCoinList()
+    operator fun invoke(): Flow<List<CoinInfo>> = repository.getCoinList()
 }

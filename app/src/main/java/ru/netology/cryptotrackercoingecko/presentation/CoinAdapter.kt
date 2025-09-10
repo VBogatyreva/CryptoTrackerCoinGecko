@@ -55,17 +55,17 @@ class CoinAdapter(
             }
 
             price.text = coin.price?.let {
-                "$${"%.2f".format(it.toDouble())}"
+                "$$it"
             } ?: "N/A"
 
             lastMarket.text = coin.lastMarket ?: "Unknown market"
 
             highDay.text = coin.highDay ?.let {
-                "$${"%.2f".format(it.toDouble())}"
+                "$$it"
             } ?: "N/A"
 
             lowDay.text = coin.lowDay ?.let {
-                "$${"%.2f".format(it.toDouble())}"
+                "$$it"
             } ?: "N/A"
 
             when {

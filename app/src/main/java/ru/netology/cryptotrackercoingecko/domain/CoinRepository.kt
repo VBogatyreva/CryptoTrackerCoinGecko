@@ -1,12 +1,14 @@
 package ru.netology.cryptotrackercoingecko.domain
 
+import kotlinx.coroutines.flow.Flow
+
 interface CoinRepository {
 
-    suspend fun getCoinList(): List<CoinInfo>
+    fun getCoinList(): Flow<List<CoinInfo>>
 
     suspend fun getCoinDetail(id: String): CoinInfo
 
     suspend fun refreshCoinList()
 
-    suspend fun searchCoins(name: String): List<CoinInfo>
+    fun searchCoins(name: String): Flow<List<CoinInfo>>
 }

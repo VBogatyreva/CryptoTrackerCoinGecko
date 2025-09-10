@@ -24,7 +24,7 @@ class CoinListViewModel : ViewModel() {
 
     init {
         viewModelScope.launch {
-            repository.coinList.collect { coins ->
+            repository.getCoinList().collect { coins ->
                 _coinList.value = coins
             }
         }
@@ -33,10 +33,9 @@ class CoinListViewModel : ViewModel() {
     fun loadCoinList() {
         viewModelScope.launch {
             _isLoading.value = true
+            _error.value = null
             try {
                 repository.refreshCoinList()
-                _coinList.value = repository.getCoinList()
-                _error.value = null
             } catch (e: Exception) {
                 _error.value = e.message
             } finally {
@@ -48,9 +47,11 @@ class CoinListViewModel : ViewModel() {
     fun searchCoins(name: String) {
         viewModelScope.launch {
             _isLoading.value = true
+            _error.value = null
             try {
-                _coinList.value = repository.searchCoins(name)
-                _error.value = null
+                repository.searchCoins(name).collect{ coins ->
+                    _coinList.value = coins
+                }
             } catch (e: Exception) {
                 _error.value = e.message
             } finally {

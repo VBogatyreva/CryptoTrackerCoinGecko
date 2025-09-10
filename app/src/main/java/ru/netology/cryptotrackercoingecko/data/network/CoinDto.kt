@@ -18,10 +18,10 @@ data class CoinDto(
             id = this.id,
             fromSymbol = symbol.uppercase(),
             toSymbol = currency.uppercase(),
-            price = currentPrice?.toString(),
+            price = currentPrice?.let { "%.2f".format(it).replace(",", ".") },
             lastUpdate = lastUpdated?.let { parseDateToTimestamp(it) } ?: System.currentTimeMillis(),
-            highDay = high24h?.toString(),
-            lowDay = low24h?.toString(),
+            highDay = high24h?.let { "%.2f".format(it).replace(",", ".") },
+            lowDay = low24h?.let { "%.2f".format(it).replace(",", ".") },
             lastMarket = "CoinGecko",
             imageUrl = image
         )

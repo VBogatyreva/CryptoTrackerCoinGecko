@@ -1,106 +1,77 @@
 package ru.netology.cryptotrackercoingecko.data.repository
 
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import android.content.Context
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import ru.netology.cryptotrackercoingecko.data.database.AppDatabase
+import ru.netology.cryptotrackercoingecko.data.database.CoinInfoDao
+import ru.netology.cryptotrackercoingecko.data.database.CoinInfoDbModel
+import ru.netology.cryptotrackercoingecko.data.mapper.CoinInfoMapper
 import ru.netology.cryptotrackercoingecko.data.network.CoinApiFactory
 import ru.netology.cryptotrackercoingecko.domain.CoinInfo
 import ru.netology.cryptotrackercoingecko.domain.CoinRepository
-import java.util.concurrent.TimeUnit
-
 
 object CoinRepositoryImpl : CoinRepository {
 
+    private lateinit var database: AppDatabase
+    private lateinit var dao: CoinInfoDao
     private val apiService = CoinApiFactory.coinGeckoApiService
+    private val mapper = CoinInfoMapper()
 
-    private val _coinList = MutableStateFlow<List<CoinInfo>>(emptyList())
-    val coinList: StateFlow<List<CoinInfo>> = _coinList.asStateFlow()
+    fun init(context: Context) {
+        database = AppDatabase.getInstance(context.applicationContext)
+        dao = database.coinPriceInfoDao()
+    }
 
-    private var refreshInterval = TimeUnit.MINUTES.toMillis(5)
-    private var lastRefreshTime = 0L
-
-    override suspend fun getCoinList(): List<CoinInfo> {
-        val currentTime = System.currentTimeMillis()
-        if (currentTime - lastRefreshTime > refreshInterval || _coinList.value.isEmpty()) {
-            refreshCoinList()
-        }
-        return _coinList.value
+    override fun getCoinList(): Flow<List<CoinInfo>> {
+        return dao.getPriceList()
+            .map { dbModels -> dbModels.map { mapDbModelToDomain(it) } }
     }
 
     override suspend fun getCoinDetail(id: String): CoinInfo {
-        return refreshCoinDetail(id) ?: throw Exception("Coin details aren't available")
+        val dbModel = dao.getPriceInfoAboutCoin(id)
+            ?: throw Exception("Coin details are not found in database")
+
+        return mapDbModelToDomain(dbModel)
     }
 
     override suspend fun refreshCoinList() {
         try {
-            println("Attempting to fetch coins from CoinGecko...")
             val response = apiService.getCoinList()
-            println("Response code: ${response.code()}")
-
             if (response.isSuccessful) {
-                val coins = response.body()?.map { it.toCoinInfo() } ?: emptyList()
-                println("Fetched ${coins.size} coins")
-
-                _coinList.value = coins
-                lastRefreshTime = System.currentTimeMillis()
+                response.body()?.let { coinsDto ->
+                    val dbModels = coinsDto.map { mapper.map(it) }
+                    dao.insertPriceList(dbModels)
+                } ?: throw Exception("Empty response body")
             } else {
-                val errorBody = response.errorBody()?.string()
-                println("Error: $errorBody")
-                throw Exception("Failed to fetch coin list: ${response.code()} - $errorBody")
+                throw Exception("API error: ${response.code()} - ${response.errorBody()?.string()}")
             }
         } catch (e: Exception) {
-            println("Exception: ${e.message}")
-            throw Exception("Failed to fetch coin list: ${e.message}")
+            throw Exception("Network error: ${e.message}")
         }
     }
 
-    private suspend fun refreshCoinDetail(id: String): CoinInfo? {
-        try {
-            val response = apiService.getCoinDetail(id)
-            if (response.isSuccessful) {
-                val coinDetail = response.body()
-                return coinDetail?.toCoinInfo()
-            } else {
-                println("Error fetching coin detail: ${response.errorBody()?.string()}")
+    override fun searchCoins(name: String): Flow<List<CoinInfo>> {
+        return dao.getPriceList()
+            .map { dbModels ->
+                dbModels.filter {
+                    it.fromSymbol.contains(name, ignoreCase = true) ||
+                            it.id.contains(name, ignoreCase = true)
+                }.map { mapDbModelToDomain(it) }
             }
-        } catch (e: Exception) {
-            println("Exception fetching coin detail: ${e.message}")
-        }
-        return null
     }
 
-    override suspend fun searchCoins(name: String): List<CoinInfo> {
-        return _coinList.value.filter {
-            it.fromSymbol.contains(name, ignoreCase = true)
-        }
-    }
-
-    private fun ru.netology.cryptotrackercoingecko.data.network.CoinDetailResponse.toCoinInfo(): CoinInfo {
+    private fun mapDbModelToDomain(dbModel: CoinInfoDbModel): CoinInfo {
         return CoinInfo(
-            id = this.id,
-            fromSymbol = symbol.uppercase(),
-            toSymbol = "USD",
-            price = marketData?.currentPrice?.get("usd")?.toString(),
-            lastUpdate = lastUpdated?.let { parseDateToTimestamp(it) }
-                ?: System.currentTimeMillis(),
-            highDay = marketData?.high24h?.get("usd")?.toString(),
-            lowDay = marketData?.low24h?.get("usd")?.toString(),
-            lastMarket = "CoinGecko",
-            imageUrl = image?.large ?: image?.small ?: image?.thumb
+            id = dbModel.id,
+            fromSymbol = dbModel.fromSymbol,
+            toSymbol = dbModel.toSymbol,
+            price = dbModel.price,
+            lastUpdate = dbModel.lastUpdate,
+            highDay = dbModel.highDay,
+            lowDay = dbModel.lowDay,
+            lastMarket = dbModel.lastMarket,
+            imageUrl = dbModel.imageUrl
         )
-    }
-
-    private fun parseDateToTimestamp(dateString: String): Long {
-        return try {
-            val format = java.text.SimpleDateFormat(
-                "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
-                java.util.Locale.getDefault()
-            )
-            format.timeZone = java.util.TimeZone.getTimeZone("UTC")
-            val date = format.parse(dateString)
-            date?.time ?: System.currentTimeMillis()
-        } catch (e: Exception) {
-            System.currentTimeMillis()
-        }
     }
 }
