@@ -6,6 +6,7 @@ import android.content.res.Configuration
 import com.jakewharton.threetenabp.AndroidThreeTen
 import dagger.hilt.android.HiltAndroidApp
 import ru.netology.cryptotrackercoingecko.data.settings.SettingsManager
+import ru.netology.cryptotrackercoingecko.data.workers.WorkManagerScheduler
 import java.util.Locale
 import javax.inject.Inject
 
@@ -14,6 +15,9 @@ class CryptoApp : Application() {
 
     @Inject
     lateinit var settingsManager: SettingsManager
+
+    @Inject
+    lateinit var workManagerScheduler: WorkManagerScheduler
 
     override fun attachBaseContext(base: Context) {
         super.attachBaseContext(base)
@@ -27,6 +31,8 @@ class CryptoApp : Application() {
 
         AndroidThreeTen.init(this)
         SettingsManager(this).setupInitialTheme()
+
+        workManagerScheduler.schedulePeriodicSync()
     }
 
     private fun setupLocale() {

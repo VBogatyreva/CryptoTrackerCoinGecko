@@ -1,6 +1,7 @@
 package ru.netology.cryptotrackercoingecko.data.repository
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import ru.netology.cryptotrackercoingecko.data.database.CoinInfoDao
 import ru.netology.cryptotrackercoingecko.data.database.CoinInfoDbModel
@@ -54,6 +55,17 @@ class CoinRepositoryImpl @Inject constructor(
                             it.id.contains(name, ignoreCase = true)
                 }.map { mapDbModelToDomain(it) }
             }
+    }
+
+    override suspend fun needsRefresh(): Boolean {
+        val coins = dao.getPriceList().first()
+        if (coins.isEmpty()) return true                        // Нет данных - нужна синхронизация
+
+        val lastUpdate = coins.maxOfOrNull { it.lastUpdate ?: 0L } ?: 0L
+        val currentTime = System.currentTimeMillis()
+        val twoHoursInMillis = 2 * 60 * 60 * 1000L
+
+        return currentTime - lastUpdate > twoHoursInMillis       // Прошло больше 2 часов
     }
 
     private fun mapDbModelToDomain(dbModel: CoinInfoDbModel): CoinInfo {

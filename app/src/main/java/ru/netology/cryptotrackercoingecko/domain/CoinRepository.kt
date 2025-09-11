@@ -11,4 +11,6 @@ interface CoinRepository {
     suspend fun refreshCoinList()
 
     fun searchCoins(name: String): Flow<List<CoinInfo>>
+
+    suspend fun needsRefresh(): Boolean
 }
