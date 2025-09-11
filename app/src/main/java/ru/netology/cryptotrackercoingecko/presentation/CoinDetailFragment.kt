@@ -1,68 +1,68 @@
 package ru.netology.cryptotrackercoingecko.presentation
 
-import android.content.Context
-import android.content.Intent
 import android.os.Bundle
-import android.view.MenuItem
+import androidx.fragment.app.Fragment
+import android.view.LayoutInflater
 import android.view.View
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
+import android.view.ViewGroup
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import ru.netology.cryptotrackercoingecko.R
-import ru.netology.cryptotrackercoingecko.databinding.ActivityCoinDetailBinding
+import ru.netology.cryptotrackercoingecko.databinding.FragmentCoinDetailBinding
 import ru.netology.cryptotrackercoingecko.domain.CoinInfo
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class CoinDetailActivity : AppCompatActivity() {
+class CoinDetailFragment : Fragment() {
 
-    private lateinit var binding: ActivityCoinDetailBinding
+    private var _binding: FragmentCoinDetailBinding? = null
+    private val binding: FragmentCoinDetailBinding
+        get() =_binding ?: throw RuntimeException("FragmentCoinDetailBinding is null")
     private val viewModel: CoinDetailViewModel by viewModels()
     private var coinId: String = ""
 
-    companion object {
-        private const val EXTRA_COIN_ID = "coin_id"
-
-        fun newIntent(context: Context, coinId: String): Intent {
-            return Intent(context, CoinDetailActivity::class.java).apply {
-                putExtra(EXTRA_COIN_ID, coinId)
-            }
-        }
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentCoinDetailBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        binding = ActivityCoinDetailBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
-        coinId = intent.getStringExtra(EXTRA_COIN_ID) ?: ""
-        if (coinId.isEmpty()) finish()
+        coinId = arguments?.getString("coin_id") ?: ""
+        if (coinId.isEmpty()) {
+            findNavController().popBackStack()
+            return
+        }
 
         setupObservers()
         viewModel.loadCoinDetails(coinId)
-
     }
 
     private fun setupObservers() {
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             viewModel.coinDetails.collectLatest { coin ->
                 coin?.let { updateUI(it) }
             }
         }
 
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             viewModel.error.collectLatest { error ->
                 error?.let { showError(it) }
             }
         }
 
-        lifecycleScope.launch {
+        viewLifecycleOwner.lifecycleScope.launch {
             viewModel.isLoading.collectLatest { isLoading ->
                 binding.progressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
             }
@@ -102,7 +102,7 @@ class CoinDetailActivity : AppCompatActivity() {
             tvLastUpdate.text = "Updated: ${dateFormat.format(date)}"
 
             if (!coin.imageUrl.isNullOrEmpty()) {
-                Glide.with(this@CoinDetailActivity)
+                Glide.with(this@CoinDetailFragment)
                     .load(coin.imageUrl)
                     .placeholder(R.drawable.ic_coin_placeholder)
                     .error(R.drawable.ic_coin_error)
@@ -116,7 +116,6 @@ class CoinDetailActivity : AppCompatActivity() {
         }
     }
 
-
     private fun showError(message: String) {
         Snackbar.make(
             binding.root,
@@ -127,13 +126,8 @@ class CoinDetailActivity : AppCompatActivity() {
             .show()
     }
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            android.R.id.home -> {
-                finish()
-                return true
-            }
-        }
-        return super.onOptionsItemSelected(item)
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

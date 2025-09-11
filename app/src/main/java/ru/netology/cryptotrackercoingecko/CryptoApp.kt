@@ -6,6 +6,7 @@ import com.jakewharton.threetenabp.AndroidThreeTen
 import ru.netology.cryptotrackercoingecko.data.repository.CoinRepositoryImpl
 import ru.netology.cryptotrackercoingecko.data.settings.LocaleHelper
 import ru.netology.cryptotrackercoingecko.data.settings.SettingsManager
+import java.util.Locale
 
 class CryptoApp : Application() {
     override fun onCreate() {
@@ -16,6 +17,10 @@ class CryptoApp : Application() {
     }
     override fun attachBaseContext(base: Context) {
         val settingsManager = SettingsManager(base)
-        super.attachBaseContext(LocaleHelper.setLocale(base, settingsManager.currentLanguage))
+        super.attachBaseContext(
+            LocaleHelper.setLocale(base, settingsManager.currentLanguage).also {
+                Locale.setDefault(Locale(settingsManager.currentLanguage))
+            }
+        )
     }
 }
