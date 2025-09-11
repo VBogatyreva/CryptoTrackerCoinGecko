@@ -2,8 +2,10 @@ package ru.netology.cryptotrackercoingecko.presentation
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.cryptotrackercoingecko.R
 
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

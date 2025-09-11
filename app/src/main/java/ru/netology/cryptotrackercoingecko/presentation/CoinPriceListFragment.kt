@@ -18,6 +18,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
@@ -25,7 +26,9 @@ import kotlinx.coroutines.launch
 import ru.netology.cryptotrackercoingecko.R
 import ru.netology.cryptotrackercoingecko.data.settings.SettingsManager
 import ru.netology.cryptotrackercoingecko.databinding.FragmentCoinPriceListBinding
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class CoinPriceListFragment : Fragment() {
 
     private var _binding: FragmentCoinPriceListBinding? = null
@@ -35,7 +38,9 @@ class CoinPriceListFragment : Fragment() {
     private lateinit var adapter: CoinAdapter
     private lateinit var searchAdapter: CoinAdapter
     private var searchJob: Job? = null
-    private lateinit var settingsManager: SettingsManager
+
+    @Inject
+    lateinit var settingsManager: SettingsManager
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -43,7 +48,6 @@ class CoinPriceListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentCoinPriceListBinding.inflate(inflater, container, false)
-        settingsManager = SettingsManager(requireContext())
         return binding.root
     }
 

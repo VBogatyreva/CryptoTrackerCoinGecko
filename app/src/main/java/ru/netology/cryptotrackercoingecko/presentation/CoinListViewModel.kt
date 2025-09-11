@@ -2,17 +2,26 @@ package ru.netology.cryptotrackercoingecko.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
-import ru.netology.cryptotrackercoingecko.data.repository.CoinRepositoryImpl
 import ru.netology.cryptotrackercoingecko.domain.CoinInfo
+import ru.netology.cryptotrackercoingecko.domain.CoinRepository
+import ru.netology.cryptotrackercoingecko.domain.GetCoinListUseCase
+import ru.netology.cryptotrackercoingecko.domain.RefreshCoinDataUseCase
+import ru.netology.cryptotrackercoingecko.domain.SearchCoinsUseCase
+import javax.inject.Inject
 
-class CoinListViewModel : ViewModel() {
-
-    private val repository = CoinRepositoryImpl
+@HiltViewModel
+class CoinListViewModel @Inject constructor(
+    private val getCoinListUseCase: GetCoinListUseCase,
+    private val refreshCoinDataUseCase: RefreshCoinDataUseCase,
+    private val searchCoinsUseCase: SearchCoinsUseCase
+//    private val repository: CoinRepository
+)  : ViewModel() {
 
     private val _coinList = MutableStateFlow<List<CoinInfo>>(emptyList())
     val coinList: StateFlow<List<CoinInfo>> = _coinList.asStateFlow()
@@ -38,7 +47,8 @@ class CoinListViewModel : ViewModel() {
 
     init {
         viewModelScope.launch {
-            repository.getCoinList().collectLatest { coins ->
+//            repository.getCoinList().collectLatest { coins ->
+            getCoinListUseCase().collectLatest { coins ->
                 _coinList.value = coins
                 applyFilter(_currentFilter.value)
             }
@@ -71,7 +81,8 @@ class CoinListViewModel : ViewModel() {
             _isLoading.value = true
             _error.value = null
             try {
-                repository.refreshCoinList()
+//                repository.refreshCoinList()
+                refreshCoinDataUseCase()
             } catch (e: Exception) {
                 _error.value = e.message
             } finally {
@@ -85,7 +96,8 @@ class CoinListViewModel : ViewModel() {
             _isLoading.value = true
             _error.value = null
             try {
-                repository.searchCoins(name).collect{ coins ->
+//                repository.searchCoins(name).collect{ coins ->
+                searchCoinsUseCase(name).collect{ coins ->
                     _searchResults.value = coins
                     _showSearchResults.value = name.isNotEmpty()
                 }

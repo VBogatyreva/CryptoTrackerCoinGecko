@@ -1,6 +1,8 @@
 package ru.netology.cryptotrackercoingecko.domain
 
-class RefreshCoinDataUseCase (private val repository: CoinRepository) {
+import javax.inject.Inject
+
+class RefreshCoinDataUseCase @Inject constructor (private val repository: CoinRepository) {
 
     suspend operator fun invoke() = repository.refreshCoinList()
 }

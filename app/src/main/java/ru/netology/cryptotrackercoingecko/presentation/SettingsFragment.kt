@@ -7,17 +7,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.navigation.fragment.findNavController
+import dagger.hilt.android.AndroidEntryPoint
 import ru.netology.cryptotrackercoingecko.R
 import ru.netology.cryptotrackercoingecko.data.settings.SettingsManager
 import ru.netology.cryptotrackercoingecko.databinding.FragmentSettingsBinding
 import java.util.Locale
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class SettingsFragment : Fragment() {
 
     private var _binding: FragmentSettingsBinding? = null
     private val binding: FragmentSettingsBinding
         get() =_binding ?: throw RuntimeException("FragmentSettingsBinding is null")
-    private lateinit var settingsManager: SettingsManager
+
+    @Inject
+    lateinit var settingsManager: SettingsManager
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -30,8 +35,6 @@ class SettingsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        settingsManager = SettingsManager(requireContext())
 
         setupCurrentSettings()
         setupSaveButton()

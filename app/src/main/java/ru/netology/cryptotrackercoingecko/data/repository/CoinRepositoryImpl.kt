@@ -1,27 +1,22 @@
 package ru.netology.cryptotrackercoingecko.data.repository
 
-import android.content.Context
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import ru.netology.cryptotrackercoingecko.data.database.AppDatabase
 import ru.netology.cryptotrackercoingecko.data.database.CoinInfoDao
 import ru.netology.cryptotrackercoingecko.data.database.CoinInfoDbModel
 import ru.netology.cryptotrackercoingecko.data.mapper.CoinInfoMapper
-import ru.netology.cryptotrackercoingecko.data.network.CoinApiFactory
+import ru.netology.cryptotrackercoingecko.data.network.CoinApiService
 import ru.netology.cryptotrackercoingecko.domain.CoinInfo
 import ru.netology.cryptotrackercoingecko.domain.CoinRepository
+import javax.inject.Inject
+import javax.inject.Singleton
 
-object CoinRepositoryImpl : CoinRepository {
-
-    private lateinit var database: AppDatabase
-    private lateinit var dao: CoinInfoDao
-    private val apiService = CoinApiFactory.coinGeckoApiService
-    private val mapper = CoinInfoMapper()
-
-    fun init(context: Context) {
-        database = AppDatabase.getInstance(context.applicationContext)
-        dao = database.coinPriceInfoDao()
-    }
+@Singleton
+class CoinRepositoryImpl @Inject constructor(
+    private val dao: CoinInfoDao,
+    private val apiService: CoinApiService,
+    private val mapper: CoinInfoMapper
+) : CoinRepository {
 
     override fun getCoinList(): Flow<List<CoinInfo>> {
         return dao.getPriceList()
